@@ -5,3 +5,4 @@ linuxserver/jackett
 jxxghp/moviepilot
 mtphotos/mt-photos
 linuxserver/qbittorrent
+filebrowser/filebrowser
