@@ -6,4 +6,4 @@ jxxghp/moviepilot
 mtphotos/mt-photos
 linuxserver/qbittorrent
 filebrowser/filebrowser
-cups-airprint
+tigerj/cups-airprint
