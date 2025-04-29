@@ -8,3 +8,4 @@ linuxserver/qbittorrent
 filebrowser/filebrowser
 tigerj/cups-airprint
 jxxghp/moviepilot-v2
+lscr.io/linuxserver/duplicati
