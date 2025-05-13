@@ -10,3 +10,4 @@ tigerj/cups-airprint
 jxxghp/moviepilot-v2
 linuxserver/duplicati
 whyour/qinglong
+olbat/cupsd
