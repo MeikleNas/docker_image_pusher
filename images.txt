@@ -11,3 +11,4 @@ jxxghp/moviepilot-v2
 linuxserver/duplicati
 whyour/qinglong
 olbat/cupsd
+ydkn/cups
