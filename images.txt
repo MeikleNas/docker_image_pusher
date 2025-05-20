@@ -2,13 +2,8 @@ ghcr.io/paperless-ngx/paperless-ngx
 xhofe/alist
 advplyr/audiobookshelf
 linuxserver/jackett
-jxxghp/moviepilot
 mtphotos/mt-photos
 linuxserver/qbittorrent
 filebrowser/filebrowser
-tigerj/cups-airprint
 jxxghp/moviepilot-v2
 linuxserver/duplicati
-whyour/qinglong
-olbat/cupsd
-ydkn/cups
