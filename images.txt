@@ -1,5 +1,5 @@
 ghcr.io/paperless-ngx/paperless-ngx:latest
-xhofe/alist:latest
+xhofe/alist:v3.45.0
 advplyr/audiobookshelf
 linuxserver/jackett
 mtphotos/mt-photos
