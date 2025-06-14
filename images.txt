@@ -7,4 +7,3 @@ filebrowser/filebrowser
 jxxghp/moviepilot-v2
 linuxserver/duplicati
 cloudnas/clouddrive2
-xhofe/alist:v3.40.0
