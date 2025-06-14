@@ -6,3 +6,4 @@ linuxserver/qbittorrent
 filebrowser/filebrowser
 jxxghp/moviepilot-v2
 linuxserver/duplicati
+cloudnas/clouddrive2
