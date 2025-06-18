@@ -8,4 +8,3 @@ jxxghp/moviepilot-v2
 linuxserver/duplicati
 cloudnas/clouddrive2
 containrrr/watchtower
-openlistteam/openlist
