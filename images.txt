@@ -9,4 +9,5 @@ linuxserver/duplicati
 cloudnas/clouddrive2
 containrrr/watchtower
 openlistteam/openlist
-apache/tika
+apache/tika:1.27
+gotenberg/gotenberg:7.10
