@@ -9,4 +9,4 @@ linuxserver/duplicati
 cloudnas/clouddrive2
 containrrr/watchtower
 openlistteam/openlist
-
+apache/tika
