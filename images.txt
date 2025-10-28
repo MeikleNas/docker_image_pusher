@@ -1,3 +1,4 @@
+apache/tika:3.2.3
 docker.io/apache/tika:1.27-full
 docker.io/library/redis:6.2
 gotenberg/gotenberg:7.10
