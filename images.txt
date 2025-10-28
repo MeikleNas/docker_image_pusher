@@ -1,4 +1,4 @@
-docker.io/apache/tika:1.27-full
+docker.io/apache/tika:2.9.1-full
 docker.io/library/redis:6.2
 gotenberg/gotenberg:7.10
 ghcr.io/paperless-ngx/paperless-ngx
