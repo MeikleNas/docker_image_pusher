@@ -1,6 +1,6 @@
-docker.io/apache/tika:latest
-docker.io/library/redis:6.2
-gotenberg/gotenberg:7.10
+docker.io/apache/tika:3.2.3.0
+docker.io/library/redis:8
+gotenberg/gotenberg:8.24
 ghcr.io/paperless-ngx/paperless-ngx
 advplyr/audiobookshelf
 linuxserver/jackett
