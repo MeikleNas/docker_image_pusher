@@ -1,7 +1,7 @@
 docker.io/apache/tika:3.2.3.0
 docker.io/library/redis:8
 gotenberg/gotenberg:8.24
-ghcr.io/paperless-ngx/paperless-ngx
+ghcr.io/paperless-ngx/paperless-ngx:1.9.2
 advplyr/audiobookshelf
 linuxserver/jackett
 mtphotos/mt-photos
