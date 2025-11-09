@@ -11,3 +11,4 @@ jxxghp/moviepilot-v2
 linuxserver/duplicati
 containrrr/watchtower
 openlistteam/openlist
+brandawg93/peanu
