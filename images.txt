@@ -1,7 +1,7 @@
+ghcr.io/paperless-ngx/paperless-ngx
 docker.io/apache/tika
 docker.io/library/redis
 gotenberg/gotenberg
-ghcr.io/paperless-ngx/paperless-ngx
 advplyr/audiobookshelf
 linuxserver/jackett
 mtphotos/mt-photos
