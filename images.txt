@@ -1,3 +1,4 @@
+jxxghp/moviepilot-v2
 ghcr.io/paperless-ngx/paperless-ngx
 docker.io/apache/tika
 docker.io/library/redis
@@ -7,7 +8,6 @@ linuxserver/jackett
 mtphotos/mt-photos
 linuxserver/qbittorrent
 filebrowser/filebrowser
-jxxghp/moviepilot-v2
 linuxserver/duplicati
 containrrr/watchtower
 openlistteam/openlist
