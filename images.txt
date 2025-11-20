@@ -1,10 +1,10 @@
+linuxserver/jackett
 jxxghp/moviepilot-v2
 ghcr.io/paperless-ngx/paperless-ngx
 docker.io/apache/tika
 docker.io/library/redis
 gotenberg/gotenberg
 advplyr/audiobookshelf
-linuxserver/jackett
 mtphotos/mt-photos
 linuxserver/qbittorrent
 filebrowser/filebrowser
