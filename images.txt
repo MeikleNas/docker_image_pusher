@@ -1,5 +1,5 @@
-linuxserver/jackett
 jxxghp/moviepilot-v2
+linuxserver/jackett
 ghcr.io/paperless-ngx/paperless-ngx
 docker.io/apache/tika
 docker.io/library/redis
