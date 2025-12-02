@@ -1,10 +1,10 @@
+advplyr/audiobookshelf
 ghcr.io/paperless-ngx/paperless-ngx
 jxxghp/moviepilot-v2
 linuxserver/jackett
 docker.io/apache/tika
 docker.io/library/redis
 gotenberg/gotenberg
-advplyr/audiobookshelf
 mtphotos/mt-photos
 linuxserver/qbittorrent
 filebrowser/filebrowser
