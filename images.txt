@@ -1,4 +1,4 @@
-minzgo/music-scraper:1.0-amd64
+minzgo/music-scraper:1.0.1-amd64
 advplyr/audiobookshelf
 ghcr.io/paperless-ngx/paperless-ngx
 jxxghp/moviepilot-v2
