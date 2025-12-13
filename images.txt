@@ -1,3 +1,4 @@
+minzgo/music-scraper
 advplyr/audiobookshelf
 ghcr.io/paperless-ngx/paperless-ngx
 jxxghp/moviepilot-v2
