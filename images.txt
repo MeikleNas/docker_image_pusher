@@ -12,3 +12,4 @@ filebrowser/filebrowser
 linuxserver/duplicati
 containrrr/watchtower
 openlistteam/openlist
+gdy666/lucky
