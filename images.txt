@@ -1,5 +1,5 @@
-minzgo/music-scraper
 advplyr/audiobookshelf
+minzgo/music-scraper
 ghcr.io/paperless-ngx/paperless-ngx
 jxxghp/moviepilot-v2
 linuxserver/jackett
