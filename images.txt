@@ -1,3 +1,4 @@
+louislam/uptime-kuma
 advplyr/audiobookshelf
 minzgo/music-scraper
 ghcr.io/paperless-ngx/paperless-ngx
