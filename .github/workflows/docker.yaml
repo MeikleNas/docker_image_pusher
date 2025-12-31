@@ -5,7 +5,7 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: '0 21 * * *' # 每天21点（西八区）执行、每天的 1:00、3:00、5:00、...、23:00(0 1-23/3 * * *)
+    - cron: '0 13,1 * * *'  # 西八区每天13点、凌晨1点执行；对应东八区为次日早5点、当天下午5点
 
 env:
   ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
