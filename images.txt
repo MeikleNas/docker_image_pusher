@@ -1,9 +1,9 @@
+jxxghp/moviepilot-v2
 willfarrell/autoheal
 ghcr.io/fish2018/pansou-web
 advplyr/audiobookshelf
 minzgo/music-scraper
 ghcr.io/paperless-ngx/paperless-ngx
-jxxghp/moviepilot-v2
 linuxserver/jackett
 docker.io/apache/tika
 docker.io/library/redis
