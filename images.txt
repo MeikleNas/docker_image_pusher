@@ -1,5 +1,5 @@
-jxxghp/moviepilot-v2
 ghcr.io/fish2018/pansou-web
+jxxghp/moviepilot-v2
 advplyr/audiobookshelf
 minzgo/music-scraper
 ghcr.io/paperless-ngx/paperless-ngx
