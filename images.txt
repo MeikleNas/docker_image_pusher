@@ -1,1 +1,17 @@
+ghcr.io/fish2018/pansou-web
+jxxghp/moviepilot-v2
+advplyr/audiobookshelf
+minzgo/music-scraper
+ghcr.io/paperless-ngx/paperless-ngx
+linuxserver/jackett
+docker.io/apache/tika
+docker.io/library/redis
+gotenberg/gotenberg
+mtphotos/mt-photos
+linuxserver/qbittorrent
+filebrowser/filebrowser
+linuxserver/duplicati
+containrrr/watchtower
+openlistteam/openlist
+gdy666/lucky
 nextemby/nextemby
