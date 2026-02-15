@@ -12,9 +12,10 @@ env:
   ALIYUN_NAME_SPACE: "${{ secrets.ALIYUN_NAME_SPACE }}"
   ALIYUN_REGISTRY_USER: "${{ secrets.ALIYUN_REGISTRY_USER }}"
   ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
+  # 新增：清理保留的最新runs数量（保留最近5条，可自行调整）
+  KEEP_LATEST_RUNS: 5
 
 jobs:
-
   build:
     name: Pull
     runs-on: ubuntu-latest
@@ -26,22 +27,45 @@ jobs:
         df -hT
         echo "=============================================================================="
 
-    # 增加可用磁盘空间
+    # 增加可用磁盘空间（原有步骤保留，补充更多清理项）
     - name: Maximize build space
       uses: easimon/maximize-build-space@master
       with:
-
         root-reserve-mb: 2048
         swap-size-mb: 128
         remove-dotnet: 'true'
         remove-haskell: 'true'
-        # 如果空间还是不够用，可以把以下开启，清理出更多空间
-        # remove-android: 'true'
-        # remove-codeql: 'true'
+        remove-android: 'true'    # 新增：清理安卓SDK（占用大量空间）
+        remove-codeql: 'true'     # 新增：清理CodeQL（非必需）
+        remove-docker-images: 'true' # 新增：清理默认Docker镜像
         build-mount-path: '/var/lib/docker/'
 
-    - name: Restart docker
-      run: sudo service docker restart
+    # 新增：深度清理系统文件和Docker缓存（关键补充）
+    - name: Deep clean system and Docker cache
+      run: |
+        echo "=== 深度清理系统文件 ==="
+        # 清理apt缓存和无用包
+        sudo apt autoremove -y --purge
+        sudo apt clean
+        sudo rm -rf /var/lib/apt/lists/*
+        
+        # 清理Runner日志
+        sudo rm -rf /home/runner/actions-runner/cached/_diag/*.log
+        
+        # 清理临时文件
+        sudo rm -rf /tmp/* /var/tmp/*
+        
+        # 清理Docker缓存（最关键：删除未使用的镜像、容器、卷、网络）
+        echo "=== 清理Docker缓存 ==="
+        sudo docker system prune -a -f --volumes
+        sudo docker builder prune -a -f
+        
+        # 重启Docker确保缓存清理生效
+        sudo service docker restart
+        
+        echo "=== 清理后磁盘状态 ==="
+        df -hT
+        echo "=============================================================================="
 
     - name: Free up disk space complete
       run: |
@@ -148,11 +172,59 @@ jobs:
             echo "=============================================================================="
             df -hT
             echo "=============================================================================="
-            docker rmi $image
-            docker rmi $new_image
+            # 强制删除镜像（避免依赖导致删除失败）
+            docker rmi -f $image || true
+            docker rmi -f $new_image || true
+            # 每处理一个镜像就清理一次Docker缓存
+            docker system prune -f --volumes
             echo "磁盘空间清理完毕"
             echo "=============================================================================="
             df -hT
             echo "=============================================================================="     
             
         done < images.txt
+        
+    # 新增：Job结束后最终清理（无论成功/失败都执行）
+    - name: Final cleanup (always execute)
+      if: always()
+      run: |
+        echo "=== 最终清理所有无用资源 ==="
+        docker system prune -a -f --volumes
+        sudo rm -rf /tmp/*
+        df -hT
+
+    # ===================== 核心新增：自动清理旧的workflow runs =====================
+    - name: Auto clean old workflow runs
+      if: always()  # 无论前面步骤成功/失败，都执行清理
+      env:
+        # 传递GitHub仓库信息（自动获取，无需手动改）
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_TOKEN: ${{ github.token }}  # GitHub自动生成的临时令牌，有删除runs的权限
+      run: |
+        echo "=== 开始自动清理旧的workflow runs ==="
+        echo "保留最近 $KEEP_LATEST_RUNS 条运行记录，删除更早的记录"
+        
+        # 安装jq（用于解析JSON）
+        sudo apt update && sudo apt install -y jq
+        
+        # 1. 获取当前workflow的ID（根据名称Docker.yml匹配）
+        WORKFLOW_ID=$(gh api "/repos/$GITHUB_REPOSITORY/actions/workflows" | jq -r '.workflows[] | select(.name=="Docker") | .id')
+        echo "当前Docker workflow ID: $WORKFLOW_ID"
+        
+        # 2. 获取该workflow的所有runs（按创建时间降序），排除前KEEP_LATEST_RUNS条，只取需要删除的
+        RUNS_TO_DELETE=$(gh api --paginate "/repos/$GITHUB_REPOSITORY/actions/workflows/$WORKFLOW_ID/runs?status=completed&per_page=100" \
+          | jq -r --arg keep "$KEEP_LATEST_RUNS" '[.workflow_runs[] | .id] | .[$keep | tonumber:][]')
+        
+        # 3. 批量删除旧runs
+        if [ -n "$RUNS_TO_DELETE" ]; then
+          echo "需要删除的runs ID列表：$RUNS_TO_DELETE"
+          for RUN_ID in $RUNS_TO_DELETE; do
+            echo "删除run ID: $RUN_ID"
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" -X DELETE
+            # 加短暂延迟，避免API速率限制
+            sleep 1
+          done
+          echo "=== 旧workflow runs清理完成 ==="
+        else
+          echo "=== 没有需要删除的旧runs（已保留最近$KEEP_LATEST_RUNS条）==="
+        fi
