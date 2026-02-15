@@ -1,31 +1,24 @@
 name: 清理磁盘空间
-
 on:
-  workflow_dispatch:  # 仅保留手动触发，避免自动执行干扰业务
-
+  workflow_dispatch:
 jobs:
   clean-disk:
-    runs-on: ubuntu-latest  # 自托管Runner替换为你的标签（如self-hosted）
+    runs-on: ubuntu-latest
     steps:
-      - name: 执行磁盘清理
+      - name: 一键清理磁盘空间
         run: |
-          # 清理系统日志（释放核心空间）
+          # 清理系统日志
           sudo journalctl --vacuum-size=100M
           sudo rm -rf /var/log/*.gz
           sudo truncate -s 0 /var/log/syslog /var/log/auth.log 2>/dev/null
-          
-          # 清理GitHub Runner缓存（重点）
+          # 清理Runner缓存
           sudo rm -rf /home/runner/actions-runner/_work/_temp/* 2>/dev/null
           sudo rm -rf /home/runner/actions-runner/_work/_artifact/* 2>/dev/null
           sudo rm -rf /home/runner/.cache/* 2>/dev/null
-          
-          # 清理系统临时文件
+          # 清理临时文件
           sudo rm -rf /tmp/* 2>/dev/null
           sudo rm -rf /var/tmp/* 2>/dev/null
-          
           # 清理Docker无用资源
           sudo docker system prune -af
-          
-          # 输出清理后空间状态（验证效果）
-          echo "===== 清理完成，当前根分区空间 ====="
+          # 查看清理结果
           df -h /
