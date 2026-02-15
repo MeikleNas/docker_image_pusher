@@ -5,7 +5,7 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: '0 21,9 * * *'  # 设置每天在北京时间 5:00 和 17:00 执行
+    - cron: '0 21,9 * * *'  # 北京时间 5:00 和 17:00 执行
 
 env:
   ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
@@ -14,7 +14,6 @@ env:
   ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
 
 jobs:
-
   build:
     name: Pull
     runs-on: ubuntu-latest
@@ -26,16 +25,34 @@ jobs:
         df -hT
         echo "=============================================================================="
 
-    # 增加可用磁盘空间
+    # 新增：构建前深度清理磁盘（核心删除空间逻辑）
+    - name: Deep clean disk space
+      run: |
+        echo "===== 开始深度清理磁盘空间 ====="
+        # 清理系统日志
+        sudo journalctl --vacuum-size=100M
+        sudo rm -rf /var/log/*.gz
+        sudo truncate -s 0 /var/log/syslog /var/log/auth.log 2>/dev/null
+        # 清理Runner缓存
+        sudo rm -rf /home/runner/actions-runner/_work/_temp/* 2>/dev/null
+        sudo rm -rf /home/runner/actions-runner/_work/_artifact/* 2>/dev/null
+        sudo rm -rf /home/runner/.cache/* 2>/dev/null
+        # 清理系统临时文件
+        sudo rm -rf /tmp/* 2>/dev/null
+        sudo rm -rf /var/tmp/* 2>/dev/null
+        # 清理Docker所有无用资源（比单独rmi更彻底）
+        sudo docker system prune -af --volumes
+        echo "===== 深度清理完成 ====="
+        df -hT
+
+    # 原有：基础扩容
     - name: Maximize build space
       uses: easimon/maximize-build-space@master
       with:
-
         root-reserve-mb: 2048
         swap-size-mb: 128
         remove-dotnet: 'true'
         remove-haskell: 'true'
-        # 如果空间还是不够用，可以把以下开启，清理出更多空间
         # remove-android: 'true'
         # remove-codeql: 'true'
         build-mount-path: '/var/lib/docker/'
@@ -156,3 +173,12 @@ jobs:
             echo "=============================================================================="     
             
         done < images.txt
+
+    # 新增：工作流结束后最终清理（兜底释放空间）
+    - name: Final clean disk space
+      if: always()  # 无论前面步骤成功/失败，都执行清理
+      run: |
+        echo "===== 最终兜底清理 ====="
+        sudo docker system prune -af --volumes
+        sudo rm -rf /home/runner/.cache/* 2>/dev/null
+        df -hT
