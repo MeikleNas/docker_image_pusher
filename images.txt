@@ -1,5 +1,4 @@
 ghcr.io/fish2018/pansou-web
-nextemby/nextemby
 jxxghp/moviepilot-v2
 advplyr/audiobookshelf
 minzgo/music-scraper
@@ -15,3 +14,4 @@ linuxserver/duplicati
 containrrr/watchtower
 openlistteam/openlist
 gdy666/lucky
+nextemby/nextemby
