@@ -1,19 +1,31 @@
-# 1. 查看根分区大文件（按大小排序，找前50个）
-du -ah / --exclude=/var/lib/docker --exclude=/mnt --exclude=/media | sort -rh | head -n 50
+name: 清理磁盘空间
 
-# 2. 清理系统日志（通常占大量空间）
-journalctl --vacuum-size=100M  # 只保留100M系统日志
-rm -rf /var/log/*.gz  # 删除压缩的旧日志
-truncate -s 0 /var/log/syslog /var/log/auth.log  # 清空当前日志（谨慎使用）
+on:
+  workflow_dispatch:  # 仅保留手动触发，避免自动执行干扰业务
 
-# 3. 清理GitHub Actions缓存（runner缓存通常在/home/runner）
-rm -rf /home/runner/actions-runner/_work/_temp/*
-rm -rf /home/runner/actions-runner/_work/_artifact/*
-rm -rf /home/runner/.cache/*
-
-# 4. 清理临时文件
-rm -rf /tmp/*
-rm -rf /var/tmp/*
-
-# 5. 清理Docker无用资源（即使不在根分区，也避免间接占用）
-docker system prune -af  # 强制删除所有未使用的镜像、容器、网络、卷
+jobs:
+  clean-disk:
+    runs-on: ubuntu-latest  # 自托管Runner替换为你的标签（如self-hosted）
+    steps:
+      - name: 执行磁盘清理
+        run: |
+          # 清理系统日志（释放核心空间）
+          sudo journalctl --vacuum-size=100M
+          sudo rm -rf /var/log/*.gz
+          sudo truncate -s 0 /var/log/syslog /var/log/auth.log 2>/dev/null
+          
+          # 清理GitHub Runner缓存（重点）
+          sudo rm -rf /home/runner/actions-runner/_work/_temp/* 2>/dev/null
+          sudo rm -rf /home/runner/actions-runner/_work/_artifact/* 2>/dev/null
+          sudo rm -rf /home/runner/.cache/* 2>/dev/null
+          
+          # 清理系统临时文件
+          sudo rm -rf /tmp/* 2>/dev/null
+          sudo rm -rf /var/tmp/* 2>/dev/null
+          
+          # 清理Docker无用资源
+          sudo docker system prune -af
+          
+          # 输出清理后空间状态（验证效果）
+          echo "===== 清理完成，当前根分区空间 ====="
+          df -h /
