@@ -1,17 +1,196 @@
-name: Delete All Workflow Runs
+name: Docker
+
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 21,9 * * *'  # 北京时间 5:00 和 17:00 执行
+
+env:
+  ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
+  ALIYUN_NAME_SPACE: "${{ secrets.ALIYUN_NAME_SPACE }}"
+  ALIYUN_REGISTRY_USER: "${{ secrets.ALIYUN_REGISTRY_USER }}"
+  ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
 
 jobs:
-  delete:
+  build:
+    name: Pull
     runs-on: ubuntu-latest
+    steps:
+    - name: Before freeing up disk space
+      run: |
+        echo "Before freeing up disk space"
+        echo "=============================================================================="
+        df -hT
+        echo "=============================================================================="
+
+    # 强化版磁盘清理（移除maximize-build-space，改用纯清理）
+    - name: Deep clean disk space
+      run: |
+        echo "===== 开始深度清理磁盘空间 ====="
+        # 1. 清理系统级大文件
+        sudo apt-get autoremove -y --purge
+        sudo apt-get clean -y
+        sudo apt-get autoclean -y
+        # 2. 清理日志（核心释放空间）
+        sudo journalctl --vacuum-size=50M
+        sudo rm -rf /var/log/*.gz /var/log/*.old /var/log/*.[0-9]
+        sudo truncate -s 0 /var/log/syslog /var/log/auth.log /var/log/daemon.log 2>/dev/null
+        # 3. 清理Runner缓存（重点）
+        sudo rm -rf /home/runner/actions-runner/_work/_temp/*
+        sudo rm -rf /home/runner/actions-runner/_work/_artifact/*
+        sudo rm -rf /home/runner/.cache/* /home/runner/.npm /home/runner/.yarn
+        # 4. 清理系统临时文件
+        sudo rm -rf /tmp/* /var/tmp/* /usr/local/lib/android /opt/ghc /usr/share/dotnet
+        # 5. 清理Docker（最关键：释放Docker目录空间）
+        sudo docker system prune -af --volumes
+        sudo docker volume prune -af
+        sudo docker image prune -af
+        # 6. 查看清理后空间
+        echo "===== 深度清理完成 ====="
+        df -hT
+
+    - name: Free up disk space complete
+      run: |
+        echo "Free up disk space complete"
+        echo "=============================================================================="
+        df -hT
+        echo "=============================================================================="
+
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Docker Setup Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push image Aliyun
+      run: |
+        # 检查关键环境变量
+        if [ -z "$ALIYUN_REGISTRY" ] || [ -z "$ALIYUN_NAME_SPACE" ] || [ -z "$ALIYUN_REGISTRY_USER" ] || [ -z "$ALIYUN_REGISTRY_PASSWORD" ]; then
+            echo "ERROR: 阿里云仓库密钥未配置完整！"
+            exit 1
+        fi
+
+        # 登录阿里云仓库并检查结果
+        docker login -u $ALIYUN_REGISTRY_USER -p $ALIYUN_REGISTRY_PASSWORD $ALIYUN_REGISTRY
+        if [ $? -ne 0 ]; then
+            echo "ERROR: Docker登录失败！"
+            exit 1
+        fi
+
+        # 检查images.txt文件
+        if [ ! -f "images.txt" ]; then
+            echo "ERROR: images.txt文件不存在！"
+            exit 1
+        fi
+        echo "===== images.txt 内容 ====="
+        cat images.txt
+        echo "==========================="
+
+        # 数据预处理,判断镜像是否重名
+        declare -A duplicate_images
+        declare -A temp_map
+        while IFS= read -r line || [ -n "$line" ]; do
+            # 忽略空行与注释
+            [[ -z "$line" ]] && continue
+            if echo "$line" | grep -q '^\s*#'; then
+                continue
+            fi
+            
+            # 获取镜像的完整名称
+            image=$(echo "$line" | awk '{print $NF}')
+            image="${image%%@*}"  # 删除@sha256后缀
+            [ -z "$image" ] && continue  # 跳过空镜像名
+            
+            # 解析命名空间和镜像名
+            image_name_tag=$(echo "$image" | awk -F'/' '{print $NF}')
+            name_space=$(echo "$image" | awk -F'/' '{if (NF>=2) print $(NF-1); else print ""}')
+            name_space="${name_space}_"  # 避免空值
+            image_name=$(echo "$image_name_tag" | awk -F':' '{print $1}')
+            
+            # 判断重名镜像
+            if [[ -n "${temp_map[$image_name]}" ]]; then
+                if [[ "${temp_map[$image_name]}" != "$name_space" ]]; then
+                    echo "注意：镜像名重名 - $image_name"
+                    duplicate_images[$image_name]="true"
+                fi
+            else
+                temp_map[$image_name]="$name_space"
+            fi       
+        done < images.txt
+        
+        # 拉取、打标签、推送镜像
+        while IFS= read -r line || [ -n "$line" ]; do
+            # 忽略空行与注释
+            [[ -z "$line" ]] && continue
+            if echo "$line" | grep -q '^\s*#'; then
+                continue
+            fi
+        
+            echo "===== 处理镜像: $line ====="
+            # 拉取镜像（失败则跳过当前镜像）
+            docker pull "$line" || { echo "WARN: 拉取镜像 $line 失败，跳过"; continue; }
+            
+            # 解析平台信息
+            platform=$(echo "$line" | awk -F'--platform[ =]' '{if (NF>1) print $2}' | awk '{print $1}')
+            platform_prefix=""
+            if [ -n "$platform" ]; then
+                platform_prefix="${platform//\//_}_"
+            fi
+            
+            # 解析镜像信息
+            image=$(echo "$line" | awk '{print $NF}')
+            image="${image%%@*}"
+            image_name_tag=$(echo "$image" | awk -F'/' '{print $NF}')
+            name_space=$(echo "$image" | awk -F'/' '{if (NF>=2) print $(NF-1); else print ""}')
+            image_name=$(echo "$image_name_tag" | awk -F':' '{print $1}')
+            
+            # 处理重名镜像的命名空间前缀
+            name_space_prefix=""
+            if [[ -n "${duplicate_images[$image_name]}" && -n "$name_space" ]]; then
+                name_space_prefix="${name_space}_"
+            fi
+            
+            # 构建新镜像名
+            new_image="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$platform_prefix$name_space_prefix$image_name_tag"
+            echo "打标签: $image → $new_image"
+            docker tag "$image" "$new_image" || { echo "WARN: 打标签失败，跳过"; continue; }
+            
+            echo "推送镜像: $new_image"
+            docker push "$new_image" || { echo "WARN: 推送镜像失败，跳过"; }
+            
+            # 清理当前镜像
+            echo "清理镜像: $image 和 $new_image"
+            docker rmi "$image" 2>/dev/null
+            docker rmi "$new_image" 2>/dev/null
+            
+            # 打印磁盘空间
+            echo "===== 当前磁盘空间 ====="
+            df -hT
+            echo "=========================="
+        done < images.txt
+
+    - name: Final clean disk space
+      if: always()
+      run: |
+        echo "===== 最终兜底清理 ====="
+        sudo docker system prune -af --volumes
+        sudo rm -rf /home/runner/.cache/* 2>/dev/null
+        df -hT
+
+  # 自动清理：只保留最近 7 天的 workflow runs
+  clean-old-runs:
+    name: Clean old workflow runs
+    runs-on: ubuntu-latest
+    if: always()
     permissions:
       actions: write
       contents: read
     steps:
-      - name: Delete all workflow runs
+      - name: Delete runs older than 7 days
         uses: Mattraks/delete-workflow-runs@v2
         with:
           token: ${{ github.token }}
-          retain_days: 0
-          keep_minimum_runs: 0
+          retain_days: 7
+          keep_minimum_runs: 10
