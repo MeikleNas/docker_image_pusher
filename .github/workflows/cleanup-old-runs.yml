@@ -1,0 +1,25 @@
+name: Cleanup Old Workflow Runs
+on:
+  workflow_dispatch: # 仅保留手动触发
+
+jobs:
+  delete-old-runs:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Delete runs older than 7 days
+        env:
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          SEVEN_DAYS_AGO=$(date -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          gh api --paginate "/repos/$OWNER/$REPO/actions/runs?per_page=100&created=<$SEVEN_DAYS_AGO" --jq '.workflow_runs[].id' | while read -r run_id; do
+            if [ -n "$run_id" ]; then
+              echo "删除 run ID: $run_id"
+              gh api "/repos/$OWNER/$REPO/actions/runs/$run_id" -X DELETE
+              sleep 1
+            fi
+          done
