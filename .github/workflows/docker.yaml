@@ -5,8 +5,8 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: '0 21,9 * * *'  # 镜像推送：北京时间 5:00 和 17:00 执行
-    - cron: '0 0 1 * *'     # 记录清理：每月1号凌晨执行（UTC时间，对应北京时间早8点）
+    - cron: '0 21,9 * * *'  # 镜像推送：北京时间 5:00 和 17:00
+    - cron: '0 0 1 * *'     # 记录清理：每月1号 UTC 0点（北京时间8点）
 
 env:
   ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
@@ -15,7 +15,6 @@ env:
   ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
 
 jobs:
-  # 任务1：镜像拉取/推送（原有核心逻辑）
   build:
     name: Pull and Push Image
     runs-on: ubuntu-latest
@@ -27,29 +26,22 @@ jobs:
         df -hT
         echo "=============================================================================="
 
-    # 强化版磁盘清理
     - name: Deep clean disk space
       run: |
         echo "===== 开始深度清理磁盘空间 ====="
-        # 1. 清理系统级大文件
         sudo apt-get autoremove -y --purge
         sudo apt-get clean -y
         sudo apt-get autoclean -y
-        # 2. 清理日志
         sudo journalctl --vacuum-size=50M
         sudo rm -rf /var/log/*.gz /var/log/*.old /var/log/*.[0-9]
         sudo truncate -s 0 /var/log/syslog /var/log/auth.log /var/log/daemon.log 2>/dev/null
-        # 3. 清理Runner缓存
         sudo rm -rf /home/runner/actions-runner/_work/_temp/*
         sudo rm -rf /home/runner/actions-runner/_work/_artifact/*
         sudo rm -rf /home/runner/.cache/* /home/runner/.npm /home/runner/.yarn
-        # 4. 清理系统临时文件
         sudo rm -rf /tmp/* /var/tmp/* /usr/local/lib/android /opt/ghc /usr/share/dotnet
-        # 5. 清理Docker
         sudo docker system prune -af --volumes
         sudo docker volume prune -af
         sudo docker image prune -af
-        # 6. 查看清理后空间
         echo "===== 深度清理完成 ====="
         df -hT
 
@@ -68,20 +60,17 @@ jobs:
 
     - name: Build and push image Aliyun
       run: |
-        # 检查关键环境变量
         if [ -z "$ALIYUN_REGISTRY" ] || [ -z "$ALIYUN_NAME_SPACE" ] || [ -z "$ALIYUN_REGISTRY_USER" ] || [ -z "$ALIYUN_REGISTRY_PASSWORD" ]; then
             echo "ERROR: 阿里云仓库密钥未配置完整！"
             exit 1
         fi
 
-        # 登录阿里云仓库
         docker login -u $ALIYUN_REGISTRY_USER -p $ALIYUN_REGISTRY_PASSWORD $ALIYUN_REGISTRY
         if [ $? -ne 0 ]; then
             echo "ERROR: Docker登录失败！"
             exit 1
         fi
 
-        # 检查images.txt文件
         if [ ! -f "images.txt" ]; then
             echo "ERROR: images.txt文件不存在！"
             exit 1
@@ -90,7 +79,6 @@ jobs:
         cat images.txt
         echo "==========================="
 
-        # 数据预处理,判断镜像是否重名
         declare -A duplicate_images
         declare -A temp_map
         while IFS= read -r line || [ -n "$line" ]; do
@@ -118,7 +106,6 @@ jobs:
             fi       
         done < images.txt
         
-        # 拉取、打标签、推送镜像
         while IFS= read -r line || [ -n "$line" ]; do
             [[ -z "$line" ]] && continue
             if echo "$line" | grep -q '^\s*#'; then
@@ -152,12 +139,10 @@ jobs:
             echo "推送镜像: $new_image"
             docker push "$new_image" || { echo "WARN: 推送镜像失败，跳过"; }
             
-            # 清理当前镜像
             echo "清理镜像: $image 和 $new_image"
             docker rmi "$image" 2>/dev/null
             docker rmi "$new_image" 2>/dev/null
             
-            # 打印磁盘空间
             echo "===== 当前磁盘空间 ====="
             df -hT
             echo "=========================="
@@ -171,19 +156,18 @@ jobs:
         sudo rm -rf /home/runner/.cache/* 2>/dev/null
         df -hT
 
-  # 任务2：自动清理旧的workflow run记录（新增）
   clean-old-runs:
     name: Clean Old Workflow Runs
     runs-on: ubuntu-latest
-    # 仅在「每月1号的定时触发」时执行（避免每次镜像推送都清理）
-    if: github.event_name == 'schedule' && github.event.schedule == '0 0 1 * *'
+    # 修复：支持手动触发 + 每月定时触发
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '0 0 1 * *')
     steps:
       - name: Delete old workflow runs
         uses: Mattraks/delete-workflow-runs@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # 仓库内置令牌，无需手动配置
-          repository: ${{ github.repository }} # 自动识别当前仓库（owner/repo）
-          retain_days: 30                     # 保留最近30天的记录
-          keep_minimum_runs: 10                # 至少保留10条记录（避免全删）
-          delete_workflow_pattern: "Docker"    # 只清理名为「Docker」的workflow记录
-          skip_complete_runs: false            # 包括成功/失败的记录都清理
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 30
+          keep_minimum_runs: 10
+          delete_workflow_pattern: "Docker"
+          skip_complete_runs: false
