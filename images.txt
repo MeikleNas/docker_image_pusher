@@ -1,4 +1,4 @@
-nginx-proxy-manage
+jc21/nginx-proxy-manager
 ghcr.io/fish2018/pansou-web
 jxxghp/moviepilot-v2
 advplyr/audiobookshelf
