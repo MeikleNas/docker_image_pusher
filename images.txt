@@ -4,7 +4,7 @@ jxxghp/moviepilot-v2
 advplyr/audiobookshelf
 minzgo/music-scraper
 ghcr.io/paperless-ngx/paperless-ngx
-linuxserver/jackett
+linuxserver/jackett:0.24.1431
 docker.io/apache/tika
 docker.io/library/redis
 gotenberg/gotenberg
