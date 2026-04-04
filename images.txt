@@ -1,6 +1,6 @@
+ghcr.io/wu529778790/panhub.shenzjd.com:latest
 qdtoday/qd:lite-latest
 a76yyyy/qiandao:lite-latest
-a76yyyy/qiandao:latest
 jc21/nginx-proxy-manager
 ghcr.io/fish2018/pansou-web
 jxxghp/moviepilot-v2
