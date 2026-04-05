@@ -1,4 +1,5 @@
-ghcr.io/wu529778790/panhub.shenzjd.com:latest
+vaultwarden/server
+ghcr.io/wu529778790/panhub.shenzjd.com
 qdtoday/qd:lite-latest
 a76yyyy/qiandao:lite-latest
 jc21/nginx-proxy-manager
