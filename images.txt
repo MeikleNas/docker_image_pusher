@@ -1,4 +1,4 @@
-vaultwarden/server
+codeberg.org/rpoovey/watchandcopy
 ghcr.io/wu529778790/panhub.shenzjd.com
 qdtoday/qd:lite-latest
 a76yyyy/qiandao:lite-latest
