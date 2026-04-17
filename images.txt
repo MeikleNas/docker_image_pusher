@@ -1,3 +1,4 @@
+mtphotos/mt-photos
 codeberg.org/rpoovey/watchandcopy
 ghcr.io/wu529778790/panhub.shenzjd.com
 qdtoday/qd:lite-latest
@@ -10,7 +11,6 @@ minzgo/music-scraper
 ghcr.io/paperless-ngx/paperless-ngx
 linuxserver/jackett
 docker.io/apache/tika
-mtphotos/mt-photos
 linuxserver/qbittorrent
 linuxserver/duplicati
 openlistteam/openlist
