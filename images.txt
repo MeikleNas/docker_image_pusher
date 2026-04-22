@@ -1,5 +1,4 @@
 mtphotos/mt-photos
-codeberg.org/rpoovey/watchandcopy
 ghcr.io/wu529778790/panhub.shenzjd.com
 a76yyyy/qiandao:lite-latest
 jc21/nginx-proxy-manager
