@@ -1,17 +1,13 @@
 mtphotos/mt-photos
 codeberg.org/rpoovey/watchandcopy
 ghcr.io/wu529778790/panhub.shenzjd.com
-qdtoday/qd:lite-latest
 a76yyyy/qiandao:lite-latest
 jc21/nginx-proxy-manager
-ghcr.io/fish2018/pansou-web
 jxxghp/moviepilot-v2
 advplyr/audiobookshelf
 minzgo/music-scraper
 ghcr.io/paperless-ngx/paperless-ngx
 linuxserver/jackett
-docker.io/apache/tika
 linuxserver/qbittorrent
 linuxserver/duplicati
 openlistteam/openlist
-gdy666/lucky
