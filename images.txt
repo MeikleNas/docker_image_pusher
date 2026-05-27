@@ -1,8 +1,8 @@
+jxxghp/moviepilot-v2
 advplyr/audiobookshelf
 mtphotos/mt-photos
 a76yyyy/qiandao:lite-latest
 jc21/nginx-proxy-manager
-jxxghp/moviepilot-v2
 minzgo/music-scraper
 linuxserver/jackett
 linuxserver/qbittorrent
