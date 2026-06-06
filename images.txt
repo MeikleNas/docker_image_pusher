@@ -1,3 +1,5 @@
+p3terx/aria2-pro:latest
+p3terx/ariang:latest
 jxxghp/moviepilot-v2
 mtphotos/mt-photos
 advplyr/audiobookshelf
