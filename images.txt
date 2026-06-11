@@ -12,3 +12,4 @@ linuxserver/duplicati
 openlistteam/openlist
 ghcr.io/wu529778790/panhub.shenzjd.com
 ghcr.io/paperless-ngx/paperless-ngx
+ghcr.io/59799517/simple_sq_music_plus
