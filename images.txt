@@ -1,3 +1,4 @@
+shanyanwcx/abs-ximalaya
 jxxghp/moviepilot-v2
 adguard/adguardhome
 p3terx/aria2-pro:latest
