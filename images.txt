@@ -1,3 +1,4 @@
+superneed/global-radio
 jxxghp/moviepilot-v2
 shanyanwcx/abs-ximalaya
 adguard/adguardhome
