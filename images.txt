@@ -1,3 +1,4 @@
+docker.io/library/postgres:16
 advplyr/audiobookshelf
 jeessy/ddns-go
 cloudflare/cloudflared
