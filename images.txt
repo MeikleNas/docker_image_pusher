@@ -6,7 +6,6 @@ jxxghp/moviepilot-v2
 shanyanwcx/abs-ximalaya
 p3terx/aria2-pro:latest
 mtphotos/mt-photos
-a76yyyy/qiandao:lite-latest
 jc21/nginx-proxy-manager
 minzgo/music-scraper
 linuxserver/jackett
