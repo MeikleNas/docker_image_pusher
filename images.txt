@@ -1,11 +1,10 @@
-docker.io/library/postgres:16
+docker.io/library/postgres
 advplyr/audiobookshelf
 jeessy/ddns-go
 cloudflare/cloudflared
 jxxghp/moviepilot-v2
 shanyanwcx/abs-ximalaya
 p3terx/aria2-pro:latest
-p3terx/ariang:latest
 mtphotos/mt-photos
 a76yyyy/qiandao:lite-latest
 jc21/nginx-proxy-manager
@@ -14,6 +13,5 @@ linuxserver/jackett
 linuxserver/qbittorrent
 linuxserver/duplicati
 openlistteam/openlist
-ghcr.io/wu529778790/panhub.shenzjd.com
 ghcr.io/paperless-ngx/paperless-ngx
 ghcr.io/59799517/simple_sq_music_plus
