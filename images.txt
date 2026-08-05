@@ -2,7 +2,6 @@ advplyr/audiobookshelf
 jeessy/ddns-go
 cloudflare/cloudflared
 jxxghp/moviepilot-v2
-shanyanwcx/abs-ximalaya
 p3terx/aria2-pro:latest
 mtphotos/mt-photos
 jc21/nginx-proxy-manager
